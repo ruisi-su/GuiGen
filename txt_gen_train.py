@@ -5,7 +5,7 @@ import torch.utils.data
 import torch.optim as optim
 import torch.nn as nn
 import Core.Constants as Constants
-from Core.Utils import set_seed_everywhere
+from Core.Utils import set_seed_everywhere, get_word_emb_matrix
 from Core.Optim import ScheduledOptim
 from TextGen.Dataset import Dataset, collate_fn
 from TextGen.Model import MultiEncTransformer
@@ -29,6 +29,10 @@ def parse_args():
     parser.add_argument(
         '--dict_dir', type=str, default=os.path.join(Constants.TRAIN_PATH, 'para_train_dict.pt'),
         help='token to index dictionary save location.'
+    )
+    parser.add_argument(
+        '--emb_dir', type=str, default=os.path.join(Constants.TRAIN_PATH, 'para_train_emb.pt'),
+        help='token to pretrained embedding save location.'
     )
     parser.add_argument(
         '--epoch', type=int, default=20, help='number of training epochs'
@@ -122,10 +126,10 @@ def main():
     args.n_lvl_token = training_data.dataset.n_lvl_token
     args.max_syn_token_len = data_ori['settings'].max_syn_token_len
     args.max_txt_token_len = data_ori['settings'].max_txt_token_len
-    print(args)
 
     # ========= Prepare Model ========= #
-
+    dict_emb = torch.load(args.emb_dir)
+    txt_token_emb = get_word_emb_matrix(dict_emb, w2i_dict)
     multi_encoder_transformer = MultiEncTransformer(
         n_txt_token=args.n_txt_token,
         n_syn_token=args.n_syn_token,
@@ -142,7 +146,8 @@ def main():
         d_k=args.d_k,
         d_v=args.d_v,
         dropout=args.dropout,
-        tgt_emb_prj_weight_sharing=args.tgt_emb_prj_weight_sharing
+        tgt_emb_prj_weight_sharing=args.tgt_emb_prj_weight_sharing,
+        txt_token_emb=txt_token_emb
     )
 
     if args.cuda and torch.cuda.device_count() > 1:
@@ -181,8 +186,7 @@ def prepare_dataloaders(data_ori, data_ref, w2i_dict, args):
     train_src_path_ref = data_ref['train']['src_path']
     valid_src_path_ref = data_ref['valid']['src_path']
 
-    train_loader = torch.utils.data.DataLoader(
-        Dataset(
+    train_dataset = Dataset(
             txt_token2idx=w2i_dict['text'],
             syn_token2idx=w2i_dict['syntax'],
             lvl_token2idx=w2i_dict['level'],
@@ -191,7 +195,10 @@ def prepare_dataloaders(data_ori, data_ref, w2i_dict, args):
             lvl_insts=train_src_lvl_ref + train_src_lvl_ori,
             path_insts=train_src_path_ref + train_src_path_ori,
             tgt_txt_insts=train_txt_ref + train_txt_ori
-        ),
+    )
+
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset,
         num_workers=6,
         batch_size=args.batch_size,
         collate_fn=collate_fn,
@@ -200,8 +207,7 @@ def prepare_dataloaders(data_ori, data_ref, w2i_dict, args):
         drop_last=False
     )
 
-    valid_loader = torch.utils.data.DataLoader(
-        Dataset(
+    valid_dataset = Dataset(
             txt_token2idx=w2i_dict['text'],
             syn_token2idx=w2i_dict['syntax'],
             lvl_token2idx=w2i_dict['level'],
@@ -210,7 +216,10 @@ def prepare_dataloaders(data_ori, data_ref, w2i_dict, args):
             lvl_insts=valid_src_lvl_ref + valid_src_lvl_ori,
             path_insts=valid_src_path_ref + valid_src_path_ori,
             tgt_txt_insts=valid_txt_ref + valid_txt_ori
-        ),
+    )
+
+    valid_loader = torch.utils.data.DataLoader(
+        valid_dataset,
         num_workers=6,
         batch_size=args.batch_size,
         collate_fn=collate_fn,

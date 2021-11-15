@@ -271,3 +271,27 @@ def get_tree_path_mask(path_idx, max_path_num, max_syn_len):
     for i, m in enumerate(path_idx):
         path_mask[i, m] = 1
     return path_mask
+
+#reference https://github.com/neulab/neural-lpcfg/blob/11c68dd85fb79f17ef376c38be9c8a7904ee1e81/utils.py#L430
+def get_word_emb_matrix(wv_file, idx2word, d_model):
+    wv = pickle.load(open(wv_file, "rb"))
+    dim = wv['a'].size
+    if d_model != dim:
+        raise ValueError('[Warning] d_model does not equal to the dim these embeddings are generated')
+    ret = []
+    found_cnt, unfound_cnt = 0, 0
+    for i in range(len(idx2word)):
+        word = idx2word[i]
+        try:
+            word_vec = wv[word]
+            found_cnt += 1
+        except KeyError:
+            word_vec = np.random.randn(dim)
+            word_vec /= np.linalg.norm(word_vec, 2)
+            unfound_cnt += 1
+      
+      ret.append(word_vec)
+    
+    print("[Warning] {} words found, and {} word not found".format(found_cnt, unfound_cnt))
+    
+    return np.stack(ret)
