@@ -44,7 +44,7 @@ def parse_args():
         '--batch_size', type=int, default=128, help='batch size'
     )
     parser.add_argument(
-        '--d_model', type=int, default=256, help='model dimension'
+        '--d_model', type=int, default=100, help='model dimension'
     )
     parser.add_argument(
         '--d_inner', type=int, default=1024, help='inner dimension'
@@ -129,7 +129,7 @@ def main():
 
     # ========= Prepare Model ========= #
     dict_emb = torch.load(args.emb_dir)
-    txt_token_emb = get_word_emb_matrix(dict_emb, w2i_dict)
+    txt_token_emb = get_word_emb_matrix(dict_emb, w2i_dict['text'], args.d_model)
     multi_encoder_transformer = MultiEncTransformer(
         n_txt_token=args.n_txt_token,
         n_syn_token=args.n_syn_token,

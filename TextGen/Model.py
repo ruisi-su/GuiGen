@@ -46,15 +46,15 @@ class MultiEncTransformer(nn.Module):
                 n_lvl_token, d_model, padding_idx=Constants.PAD
         )
         if txt_token_emb is not None:
-            self.txt_token_emb = txt_token_emb.load_state_dict(
+            self.txt_token_emb.load_state_dict(
                 {'weight': torch.from_numpy(txt_token_emb)})
 
         if syn_token_emb is not None:
-            self.syn_token_emb = syn_token_emb.load_state_dict(
+            self.syn_token_emb.load_state_dict(
                 {'weight': torch.from_numpy(syn_token_emb)})
 
-        if lvl_token_emb is None:
-            self.lvl_token_emb = lvl_token_emb.load_state_dict(
+        if lvl_token_emb is not None:
+            self.lvl_token_emb.load_state_dict(
                 {'weight': torch.from_numpy(lvl_token_emb)})
 
         self.syn_encoder = SynTrfEncoder(
