@@ -63,7 +63,7 @@ class Beam:
         self._scores = best_scores
 
         # get the upper beam of the scores
-        prev_beam_indices = best_scores_id / n_vocab
+        prev_beam_indices = torch.div(best_scores_id, n_vocab, rounding_mode="floor")
         new_words = best_scores_id - prev_beam_indices * n_vocab
 
         # update word sequence and sort level sequence according to

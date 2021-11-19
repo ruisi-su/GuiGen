@@ -21,7 +21,7 @@ class Generator(object):
         self._args = args
         self._device = torch.device('cuda' if args.cuda else 'cpu')
 
-        ckp = torch.load(args.txt_model_path)
+        ckp = torch.load(args.txt_model_path, map_location=self._device)
 
         # network hyper-parameters
         params = ckp['settings']
@@ -46,9 +46,12 @@ class Generator(object):
             dropout=params.dropout,
             tgt_emb_prj_weight_sharing=params.tgt_emb_prj_weight_sharing
         )
-        model = nn.DataParallel(model)
-        model.load_state_dict(ckp['model'])
-        model = model.module
+        if args.cuda:
+            model = nn.DataParallel(model)
+            model.load_state_dict(ckp['model'])
+            model = model.module
+        else:
+            model.load_state_dict(ckp['model'])
         print('[INFO] Trained model states loaded.')
 
         model = model.to(self._device)

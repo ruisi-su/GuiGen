@@ -44,6 +44,7 @@ class SynTrfEncoderLayer(nn.Module):
         slf_attn_mask = slf_attn_mask.unsqueeze(1).repeat(1, n_path, 1, 1).view(s_batch*n_path, l_sent, l_sent)
         path_attn_mask = get_attn_key_pad_mask(path_mask.view(-1, l_sent), path_mask.view(-1, l_sent))
         pos = path_attn_mask.sum(dim=2)[:, 0] == l_sent
+        path_attn_mask = path_attn_mask.clone()  #avoid warning 
         path_attn_mask[pos, :, :] = False
         slf_attn_mask = slf_attn_mask | path_attn_mask
 

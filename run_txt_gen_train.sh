@@ -9,11 +9,11 @@ set -e
 
 SEED=42
 EPOCH=30
-BATCH_SIZE=256
+BATCH_SIZE=64
 N_TRF_TXT_ENC_LAYER=4
 N_TRF_SYN_ENC_LAYER=3
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,7 python txt_gen_train.py \
+CUDA_VISIBLE_DEVICES=0 python txt_gen_train.py \
 	--epoch "$EPOCH" \
 	--batch_size "$BATCH_SIZE" \
 	--n_trf_txt_enc_layer "$N_TRF_TXT_ENC_LAYER" \
