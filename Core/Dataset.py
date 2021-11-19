@@ -301,6 +301,7 @@ def read_instances_from_file(data_file: str,
         tmpl_syn_ori += [[Constants.BOS_TOKEN] + s1_tmpl.tolist() + [Constants.EOS_TOKEN]]
         tmpl_lvl_ori += [[Constants.BOS_TOKEN] + l1_tmpl + [Constants.EOS_TOKEN]]
 
+        print(txt_ori)
         txt_ref += [[Constants.BOS_TOKEN] + t2 + [Constants.EOS_TOKEN]]
         src_syn_ref += [[Constants.BOS_TOKEN] + s2_src.tolist() + [Constants.EOS_TOKEN]]
         src_lvl_ref += [[Constants.BOS_TOKEN] + l2_src + [Constants.EOS_TOKEN]]

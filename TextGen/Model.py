@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import Core.Constants as Constants
@@ -25,9 +26,9 @@ class MultiEncTransformer(nn.Module):
                  d_v: Optional[int] = 64,
                  dropout: Optional[int] = 0.1,
                  tgt_emb_prj_weight_sharing: Optional[bool] = True,
-                 txt_token_emb: Optional[torch.Tensor] = None,
-                 syn_token_emb: Optional[torch.Tensor] = None,
-                 lvl_token_emb: Optional[torch.Tensor] = None
+                 txt_token_emb: Optional[np.array] = None,
+                 syn_token_emb: Optional[np.array] = None,
+                 lvl_token_emb: Optional[np.array] = None
                  ):
 
         n_head = n_txt_attn_head + n_syn_attn_head
@@ -35,26 +36,26 @@ class MultiEncTransformer(nn.Module):
         super().__init__()
 
         # build embeddings
-        if txt_token_emb is None:
-            self.txt_token_emb = nn.Embedding(
+        self.txt_token_emb = nn.Embedding(
                 n_txt_token, d_model, padding_idx=Constants.PAD
-            )
-        else:
-            self.txt_token_emb = txt_token_emb
-
-        if syn_token_emb is None:
-            self.syn_token_emb = nn.Embedding(
+        )
+        self.syn_token_emb = nn.Embedding(
                 n_syn_token, d_model, padding_idx=Constants.PAD
-            )
-        else:
-            self.syn_token_emb = syn_token_emb
-
-        if lvl_token_emb is None:
-            self.lvl_token_emb = nn.Embedding(
+        )
+        self.lvl_token_emb = nn.Embedding(
                 n_lvl_token, d_model, padding_idx=Constants.PAD
-            )
-        else:
-            self.lvl_token_emb = lvl_token_emb
+        )
+        if txt_token_emb is not None:
+            self.txt_token_emb.load_state_dict(
+                {'weight': torch.from_numpy(txt_token_emb)})
+
+        if syn_token_emb is not None:
+            self.syn_token_emb.load_state_dict(
+                {'weight': torch.from_numpy(syn_token_emb)})
+
+        if lvl_token_emb is not None:
+            self.lvl_token_emb.load_state_dict(
+                {'weight': torch.from_numpy(lvl_token_emb)})
 
         self.syn_encoder = SynTrfEncoder(
             token_emb=self.syn_token_emb,

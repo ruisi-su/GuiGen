@@ -192,6 +192,11 @@ def prepare_dataloaders(data_ori, data_ref, w2i_dict, args):
     train_tmpl_path_ref = data_ref['train']['tmpl_path']
     valid_tmpl_path_ref = data_ref['valid']['tmpl_path']
 
+    print('train_txt_ref')
+    print(train_txt_ref)
+    print('train_src_syn_ref')
+    print(train_src_syn_ref)
+
     train_loader = torch.utils.data.DataLoader(
         Dataset(
             syn_token2idx=w2i_dict['syntax'],
