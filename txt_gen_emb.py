@@ -66,7 +66,6 @@ def main():
     fasttext.util.reduce_model(ft, args.dim)
     gen_word_vec(txt_word2idx, bpemb_en, ft, args.emb_save_dir)
 
-    # torch.save(w2i_dict, args.dict_save_dir)
     print('[Info] Finished.')
 
 

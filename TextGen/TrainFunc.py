@@ -30,7 +30,6 @@ def train_epoch(model,
             src_txt_pos_seqs, tgt_txt_pos_seqs, syn_pos_seqs,\
             path_mask = map(lambda x: x.to(device), batch)
         gold_seqs = tgt_txt_seqs[:, 1:]
-        print(src_txt_seqs)
         # forward
         optimizer.zero_grad()
 

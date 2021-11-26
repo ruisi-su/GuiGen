@@ -279,7 +279,6 @@ def get_word_emb_matrix(wv, w2i_dict, d_model):
         raise ValueError('[Warning] d_model does not equal to the dim these embeddings are generated')
     ret = []
     found_cnt, unfound_cnt = 0, 0
-    print(w2i_dict.keys())
     for w in tqdm(w2i_dict.keys()):
         try:
             word_vec = wv[w]
